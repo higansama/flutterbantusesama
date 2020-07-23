@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_app_travel/models/list_campaign.dart';
+import 'package:flutter_app_travel/models/campaign.dart';
 import 'package:flutter_app_travel/widgets/bottom_nav_bar.dart';
 import 'package:http/http.dart' as http;
 
@@ -9,8 +9,6 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  String outPut = "";
-
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -31,19 +29,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     Icons.refresh,
                     color: Colors.blueAccent,
                   ),
-                  onPressed: () {
-                    Campaign.getCampaign("desc").then((campaings) {
-                      String tmp = "";
-                      for (int i = 0; i < campaings.length; i++) {
-                        tmp += "[ " + campaings[i].NamaCampaign + " ] \n";
-                      }
-                      setState(() {
-                        this.outPut = tmp;
-                      });
-                    });
-                  },
+                  onPressed: () {},
                 ),
-                Text(outPut),
               ],
             ),
           )),

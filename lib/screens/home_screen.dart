@@ -3,13 +3,16 @@ import 'dart:ui';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_app_travel/models/beach_model.dart';
-import 'package:flutter_app_travel/models/list_campaign.dart';
+import 'package:flutter_app_travel/models/campaign.dart';
 import 'package:flutter_app_travel/models/recommended_model.dart';
+import 'package:flutter_app_travel/webservices/campaign_services.dart';
 import 'package:flutter_app_travel/widgets/bottom_nav_bar.dart';
 import 'package:flutter_app_travel/widgets/custom_tab_indicator.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
+
+import '../models/campaign.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -18,23 +21,30 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final _pageController = PageController(viewportFraction: 0.877);
-
+  final _campaignServices = CampaignServices();
+  List<Campaign> _listCampaignTerbaru = [];
+  List<Campaign> _listCampaignTerdekat = [];
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_){
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       _asyncMethod();
     });
   }
 
   _asyncMethod() async {
-    Campaign.getCampaign("terbaru").then((campaigns) {
-      String tmp = "";
-      for (int i = 0; i < campaigns.length; i++) {
-        print(campaigns);
-        tmp += "[ " + campaigns[i].NamaCampaign + " ] \n";
-      }
-    });
+    // _fetchCampaignTerbaru();
+    // _fetchCampaignTerdekat();
+  }
+
+  void _fetchCampaignTerbaru() async{
+    final response = await _campaignServices.getSoonestCampaign();
+    this.setState(() { _listCampaignTerbaru = response;});
+  }
+
+  void _fetchCampaignTerdekat() async{
+    final response = await _campaignServices.getNearestCampaign();
+    this.setState(() { _listCampaignTerdekat = response;});
   }
 
   Widget build(BuildContext context) {
@@ -89,7 +99,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 height: 30,
                 margin: EdgeInsets.only(left: 13.4, top: 28.8),
                 child: DefaultTabController(
-                  length: 2,
+                  length: 1,
                   child: TabBar(
                     isScrollable: true,
                     labelPadding: EdgeInsets.only(left: 14, right: 14),
@@ -108,11 +118,11 @@ class _HomeScreenState extends State<HomeScreen> {
                           child: Text('Segera'),
                         ),
                       ),
-                      Tab(
-                        child: Container(
-                          child: Text('Pedagang Kaki Lima'),
-                        ),
-                      ),
+                      // Tab(
+                      //   child: Container(
+                      //     child: Text('Pedagang Kaki Lima'),
+                      //   ),
+                      // ),
                     ],
                   ),
                 ),
@@ -127,55 +137,56 @@ class _HomeScreenState extends State<HomeScreen> {
                   controller: _pageController,
                   scrollDirection: Axis.horizontal,
                   children: List.generate(
-                      recommendations.length,
-                      (int index) => Container(
-                            margin: EdgeInsets.only(right: 28.8),
-                            width: 333.6,
-                            height: 218.4,
-                            decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(9.6),
-                                image: DecorationImage(
-                                    fit: BoxFit.cover,
-                                    image: NetworkImage(
-                                        recommendations[index].image))),
-                            child: Stack(
-                              children: <Widget>[
-                                Positioned(
-                                  bottom: 19.2,
-                                  left: 19.2,
-                                  child: ClipRect(
-                                    child: BackdropFilter(
-                                      filter: ImageFilter.blur(
-                                        sigmaX: 19.2,
-                                        sigmaY: 19.2,
-                                      ),
-                                      child: Container(
-                                        height: 36,
-                                        padding: EdgeInsets.only(
-                                            right: 14.4, left: 16.72),
-                                        alignment: Alignment.centerLeft,
-                                        child: Row(
-                                          children: <Widget>[
-                                            SvgPicture.asset(
-                                                'assets/svg/icon_location.svg'),
-                                            SizedBox(width: 9.52),
-                                            Text(
-                                              recommendations[index].name,
-                                              style: GoogleFonts.lato(
-                                                fontWeight: FontWeight.w700,
-                                                color: Colors.white,
-                                                fontSize: 16.8,
-                                              ),
-                                            ),
-                                          ],
+                    recommendations.length,
+                    (int index) => Container(
+                      margin: EdgeInsets.only(right: 28.8),
+                      width: 333.6,
+                      height: 218.4,
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(9.6),
+                          image: DecorationImage(
+                              fit: BoxFit.cover,
+                              image:
+                                  NetworkImage(recommendations[index].image))),
+                      child: Stack(
+                        children: <Widget>[
+                          Positioned(
+                            bottom: 19.2,
+                            left: 19.2,
+                            child: ClipRect(
+                              child: BackdropFilter(
+                                filter: ImageFilter.blur(
+                                  sigmaX: 19.2,
+                                  sigmaY: 19.2,
+                                ),
+                                child: Container(
+                                  height: 36,
+                                  padding:
+                                      EdgeInsets.only(right: 14.4, left: 16.72),
+                                  alignment: Alignment.centerLeft,
+                                  child: Row(
+                                    children: <Widget>[
+                                      SvgPicture.asset(
+                                          'assets/svg/icon_location.svg'),
+                                      SizedBox(width: 9.52),
+                                      Text(
+                                        recommendations[index].name,
+                                        style: GoogleFonts.lato(
+                                          fontWeight: FontWeight.w700,
+                                          color: Colors.white,
+                                          fontSize: 16.8,
                                         ),
                                       ),
-                                    ),
+                                    ],
                                   ),
-                                )
-                              ],
+                                ),
+                              ),
                             ),
-                          )),
+                          )
+                        ],
+                      ),
+                    ),
+                  ),
                 ),
               ),
 //              Smooth pageindicator library
@@ -185,11 +196,12 @@ class _HomeScreenState extends State<HomeScreen> {
                   controller: _pageController,
                   count: recommendations.length,
                   effect: ExpandingDotsEffect(
-                      activeDotColor: Colors.black38,
-                      dotColor: Color(0xFFababab),
-                      dotHeight: 4.8,
-                      dotWidth: 6,
-                      spacing: 4.8),
+                    activeDotColor: Colors.black38,
+                    dotColor: Color(0xFFababab),
+                    dotHeight: 4.8,
+                    dotWidth: 6,
+                    spacing: 4.8,
+                  ),
                 ),
               ),
 //              popular category
@@ -262,10 +274,12 @@ class _HomeScreenState extends State<HomeScreen> {
                       margin:
                           EdgeInsets.only(right: 16.8, top: 10.8, bottom: 10.8),
                       decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(9.6),
-                          image: DecorationImage(
-                              fit: BoxFit.cover,
-                              image: NetworkImage(beaches[index].image))),
+                        borderRadius: BorderRadius.circular(9.6),
+                        image: DecorationImage(
+                          fit: BoxFit.cover,
+                          image: NetworkImage(beaches[index].image),
+                        ),
+                      ),
                     );
                   },
                 ),
