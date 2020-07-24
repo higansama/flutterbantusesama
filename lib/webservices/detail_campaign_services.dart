@@ -24,7 +24,8 @@ class CampaignDetailService {
     };
     try {
       final response = await _dio.post(url, data: data);
-      return response;
+      print(response.data);
+      return response.data;
     } on DioError catch (e) {
       print(e);
       return e.response.data;
@@ -39,7 +40,8 @@ class CampaignDetailService {
     };
     try {
       final response = await _dio.post(url, data: data);
-      return response;
+      print(response.data);
+      return response.data;
     } on DioError catch (e) {
       print(e);
       return e.response.data;

@@ -47,7 +47,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void _fetchCampaignTerdekat() async {
     final response = await _campaignServices.getNearestCampaign();
-    print(response);
     setState(() {
       _listCampaignTerdekat = response;
     });

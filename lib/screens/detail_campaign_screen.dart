@@ -98,14 +98,22 @@ class _DetailCampaignState extends State<DetailCampaign> {
                         FlatButton(
                           child: Icon(Icons.favorite_border,
                               color: Colors.redAccent),
-                          onPressed: () {},
+                          onPressed: () async {
+                            await detailCampService.actionLikeCampaign(
+                              this.campaignData.id,
+                            );
+                          },
                         ),
                         FlatButton(
                           child: Icon(Icons.share, color: Colors.blueAccent),
                           onPressed: () {},
                         ),
                         FlatButton(
-                          onPressed: () {},
+                          onPressed: () async {
+                            await detailCampService.actionRememberCampaign(
+                              this.campaignData.id,
+                            );
+                          },
                           child: Icon(Icons.add_circle_outline,
                               color: Colors.amberAccent),
                         )
