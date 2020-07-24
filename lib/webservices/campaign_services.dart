@@ -6,13 +6,20 @@ import '../models/campaign.dart';
 class CampaignServices {
   final _dio = Dio();
   Future<List<Campaign>> getSoonestCampaign() async {
-    final url = "$base_url/list/campaign?sort=soonest";
+    final url = "$base_url/list/campaign?sort=terbaru";
     final campaign = await _fetchCampaignData(url);
     return campaign;
   }
 
   Future<List<Campaign>> getNearestCampaign() async {
-    final url = "$base_url/list/campaign?sort=nearest";
+    // 3273
+    final url = "$base_url/list/campaign?sort=terbaru&kota=3273";
+    final campaign = await _fetchCampaignData(url);
+    return campaign;
+  }
+
+  Future<List<Campaign>> getTodaysCampaign() async {
+    final url = "$base_url/list/campaign?sort=today";
     final campaign = await _fetchCampaignData(url);
     return campaign;
   }
@@ -21,7 +28,7 @@ class CampaignServices {
     List<Campaign> _campaigns = [];
     try {
       var response = await _dio.get(url);
-      for (var campaign in response.data) {
+      for (var campaign in response.data["data"]) {
         _campaigns.add(
           Campaign.fromJSON(campaign),
         );
@@ -32,5 +39,14 @@ class CampaignServices {
     return _campaigns;
   }
 
-  Future postNewCampaign(data) async {}
+  Future postNewCampaign(data) async {
+    final url = "$base_url/create/campaign";
+    FormData formData = new FormData.fromMap(data);
+    try {
+      var response = await _dio.post(url, data: formData);
+      return response.data;
+    } on DioError catch (e) {
+      print(e);
+    }
+  }
 }

@@ -8,25 +8,25 @@ import 'package:google_fonts/google_fonts.dart';
 
 class CampaignCard extends StatefulWidget {
   @override
-  int i;
+  var data;
   String gambar, judul;
 
-  CampaignCard(int Index, String image, title) {
-    i = Index;
+  CampaignCard(data, String image, title) {
+    this.data = data;
     gambar = image;
     judul = title;
   }
 
-  _CampaignCardState createState() => _CampaignCardState(i, gambar, judul);
+  _CampaignCardState createState() => _CampaignCardState(data, gambar, judul);
 }
 
 class _CampaignCardState extends State<CampaignCard> {
   @override
-  int i;
+  var data;
   String gambar, judul;
 
-  _CampaignCardState(int Index, String image, title) {
-    i = Index;
+  _CampaignCardState(data, String image, title) {
+    this.data = data;
     gambar = image;
     judul = title;
   }
@@ -36,7 +36,7 @@ class _CampaignCardState extends State<CampaignCard> {
       onTap: () {
         setState(() {
           Navigator.push(context, MaterialPageRoute(builder: (context) {
-            return DetailCampaign(1, i);
+            return DetailCampaign(1, data);
           }));
         });
       },

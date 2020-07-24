@@ -1,31 +1,49 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
+import 'package:flutter_app_travel/models/campaign.dart';
 import 'package:flutter_app_travel/models/campaign_model.dart';
-import 'package:flutter_app_travel/models/user.dart';
+import 'package:flutter_app_travel/webservices/detail_campaign_services.dart';
 import 'package:flutter_app_travel/widgets/bottom_nav_bar.dart';
-import 'package:flutter_app_travel/widgets/custom_tab_indicator.dart';
 import 'package:flutter_app_travel/widgets/form_tanggapan.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class DetailCampaign extends StatefulWidget {
-  int buttonNavBar, indexModelData;
-  DetailCampaign(int indexBnb, indexModel) {
+  int buttonNavBar;
+  var campaignData;
+  DetailCampaign(int indexBnb, Campaign data) {
     buttonNavBar = indexBnb;
-    indexModelData = indexModel;
+    campaignData = data;
   }
 
   @override
   _DetailCampaignState createState() =>
-      _DetailCampaignState(buttonNavBar, indexModelData);
+      _DetailCampaignState(buttonNavBar, campaignData);
 }
 
 class _DetailCampaignState extends State<DetailCampaign> {
-  int buttonNavBar, indexModelData;
-  _DetailCampaignState(int bnb, indexModel) {
+  final detailCampService = CampaignDetailService();
+  int buttonNavBar;
+  Campaign campaignData;
+  _DetailCampaignState(int bnb, Campaign data) {
     buttonNavBar = bnb;
-    indexModelData = indexModel;
+    campaignData = data;
   }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    this._getCampaignDetail(campaignData.id);
+  }
+
+  void _getCampaignDetail(campaignId) async {
+    final response = await detailCampService.getDetailCampaign(campaignId);
+    setState(() {
+      campaignData = response;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -35,7 +53,7 @@ class _DetailCampaignState extends State<DetailCampaign> {
           bottomNavigationBar: BottomNavigationBarTravel(1),
           appBar: AppBar(
             backgroundColor: Colors.orangeAccent,
-            title: Text("Campaign Ke - " + indexModelData.toString()),
+            title: Text(campaignData.namaCampaign),
             bottom: TabBar(
               indicatorColor: Colors.deepOrange,
               tabs: <Widget>[
@@ -61,10 +79,13 @@ class _DetailCampaignState extends State<DetailCampaign> {
                           width: MediaQuery.of(context).size.width,
                           margin: EdgeInsets.only(bottom: 16.8),
                           decoration: BoxDecoration(
-                              image: DecorationImage(
-                                  fit: BoxFit.cover,
-                                  image: NetworkImage(
-                                      allcampaigndatas[indexModelData].image))),
+                            image: DecorationImage(
+                              fit: BoxFit.cover,
+                              image: NetworkImage(
+                                campaignData.foto,
+                              ),
+                            ),
+                          ),
                         ),
                       ],
                     ),
@@ -84,8 +105,9 @@ class _DetailCampaignState extends State<DetailCampaign> {
                           onPressed: () {},
                         ),
                         FlatButton(
-                          onPressed: (){},
-                          child: Icon(Icons.add_circle_outline, color: Colors.amberAccent),
+                          onPressed: () {},
+                          child: Icon(Icons.add_circle_outline,
+                              color: Colors.amberAccent),
                         )
                       ],
                     ),
@@ -94,23 +116,23 @@ class _DetailCampaignState extends State<DetailCampaign> {
                   Padding(
                     padding: const EdgeInsets.only(left: 14.0, top: 2.0),
                     child: Text(
-                      "Bantu Bapak Ini Jualan Opak",
+                      this.campaignData.namaCampaign,
                       style: GoogleFonts.playfairDisplay(
                           fontSize: 35, fontWeight: FontWeight.w700),
                     ),
                   ),
 //                Pelapor
-                  Container(
-                    alignment: Alignment.topLeft,
-                    child: Padding(
-                      padding: const EdgeInsets.only(left: 15),
-                      child: Text(
-                        "John Doe",
-                        style: GoogleFonts.playfairDisplay(
-                            fontSize: 18.4, fontWeight: FontWeight.w700),
-                      ),
-                    ),
-                  ),
+                  // Container(
+                  //   alignment: Alignment.topLeft,
+                  //   child: Padding(
+                  //     padding: const EdgeInsets.only(left: 15),
+                  //     child: Text(
+                  //       "John Doe",
+                  //       style: GoogleFonts.playfairDisplay(
+                  //           fontSize: 18.4, fontWeight: FontWeight.w700),
+                  //     ),
+                  //   ),
+                  // ),
 //                  Isi latar belakang
                   Padding(
                     padding:
@@ -121,7 +143,9 @@ class _DetailCampaignState extends State<DetailCampaign> {
                         padding:
                             const EdgeInsets.only(top: 10, right: 12, left: 15),
                         child: Text(
-                          "\t Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
+                          this.campaignData.description != null
+                              ? this.campaignData.description
+                              : "",
                           style: GoogleFonts.playfairDisplay(
                             fontSize: 18,
                             color: Colors.white,
@@ -147,15 +171,16 @@ class _DetailCampaignState extends State<DetailCampaign> {
                           child: RaisedButton(
                             onPressed: () {
                               showDialog(
-                                  context: context,
-                                  builder: (BuildContext context) {
-                                    return AlertDialog(
-                                      title: Text("Tanggapi Campaign Ini"),
-                                      content: new FormTanggapan(
-                                          this.indexModelData),
-                                      actions: <Widget>[],
-                                    );
-                                  });
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return AlertDialog(
+                                    title: Text("Tanggapi Campaign Ini"),
+                                    content: new FormTanggapan(
+                                        int.parse(this.campaignData.id)),
+                                    actions: <Widget>[],
+                                  );
+                                },
+                              );
                             },
                             color: Colors.amber,
                             child: Icon(

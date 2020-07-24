@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_app_travel/models/campaign_model.dart';
+import 'package:flutter_app_travel/webservices/campaign_services.dart';
 import 'package:flutter_app_travel/widgets/bottom_nav_bar.dart';
 import 'package:flutter_app_travel/widgets/campaign_card.dart';
 
@@ -10,6 +11,24 @@ class AllCampaign extends StatefulWidget {
 }
 
 class _AllCampaignState extends State<AllCampaign> {
+  final campaignServices = CampaignServices();
+  List _listCampaignHariIni = [];
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    _getTodaysCampaign();
+  }
+
+  void _getTodaysCampaign() async {
+    final response = await campaignServices.getTodaysCampaign();
+    print(response);
+    setState(() {
+      _listCampaignHariIni = response;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -36,9 +55,15 @@ class _AllCampaignState extends State<AllCampaign> {
         body: SafeArea(
           child: Container(
             child: ListView.builder(
-                itemCount: allcampaigndatas.length,
+                itemCount: _listCampaignHariIni.length,
                 itemBuilder: (context, index) {
-                  return CampaignCard(index, allcampaigndatas[index].image, allcampaigndatas[index].kelurahan + ", " + allcampaigndatas[index].kecamatan);
+                  return CampaignCard(
+                    _listCampaignHariIni[index],
+                    _listCampaignHariIni[index].foto,
+                    _listCampaignHariIni[index].kelurahan +
+                        ", " +
+                        _listCampaignHariIni[index].kecamatan,
+                  );
                 }),
           ),
         ),

@@ -1,1 +1,1 @@
-const base_url = "";
+const base_url = "https://swikebackend.herokuapp.com";
