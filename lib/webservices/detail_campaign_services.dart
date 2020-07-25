@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:flutter_app_travel/localstorage/local_services.dart';
 import 'package:flutter_app_travel/models/campaign.dart';
 import 'package:flutter_app_travel/models/tanggapan.dart';
 import 'package:flutter_app_travel/webservices/config.dart';
@@ -35,8 +36,9 @@ class CampaignDetailService {
 
   Future actionLikeCampaign(String campaignId) async {
     final url = "$base_url/like/campaign";
+    final String userId = await LocalService.shared.getUserId();
     final data = {
-      "id_user": 31,
+      "id_user": userId,
       "id_campaign": campaignId,
     };
     try {
@@ -51,8 +53,9 @@ class CampaignDetailService {
 
   Future actionRememberCampaign(String campaignId) async {
     final url = "$base_url/remember/campaign";
+    final String userId = await LocalService.shared.getUserId();
     final data = {
-      "id_user": 31,
+      "id_user": userId,
       "id_campaign": campaignId,
     };
     try {
@@ -67,8 +70,9 @@ class CampaignDetailService {
 
   Future actionCommentCampaign(String campaignId, String message) async {
     final url = "$base_url/tanggapi/campaign";
+    final String userId = await LocalService.shared.getUserId();
     final data = {
-      "id_user": 31,
+      "id_user": userId,
       "id_campaign": campaignId,
       "isi_komentar": message
     };
@@ -84,8 +88,9 @@ class CampaignDetailService {
 
   Future actionFollowCampaign(String campaignId) async {
     final url = "$base_url/follow/campaign";
+    final String userId = await LocalService.shared.getUserId();
     final data = {
-      "id_user": 31,
+      "id_user": userId,
       "id_campaign": campaignId,
     };
     try {

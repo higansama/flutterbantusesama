@@ -2,7 +2,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
 import 'package:flutter_app_travel/models/campaign.dart';
-import 'package:flutter_app_travel/models/campaign_model.dart';
 import 'package:flutter_app_travel/models/tanggapan.dart';
 import 'package:flutter_app_travel/webservices/detail_campaign_services.dart';
 import 'package:flutter_app_travel/widgets/bottom_nav_bar.dart';
@@ -42,7 +41,6 @@ class _DetailCampaignState extends State<DetailCampaign> {
 
   void _getCampaignDetail(campaignId) async {
     final response = await detailCampService.getDetailCampaign(campaignId);
-    // final tanggapanResponse = await detailCampService.getCampaignTanggapan(campaignId);
     setState(() {
       campaignData = response;
     });

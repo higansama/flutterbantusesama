@@ -1,22 +1,25 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_app_travel/localstorage/local_services.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_app_travel/screens/home_screen.dart';
+import 'package:flutter_app_travel/screens/login_screen.dart';
 import 'package:flutter_app_travel/webservices/alamat_services.dart';
 import 'package:flutter_app_travel/webservices/campaign_services.dart';
+import 'package:flutter_app_travel/webservices/user_services.dart';
 import 'package:flutter_app_travel/widgets/bottom_nav_bar.dart';
 
-class AddNewCampaign extends StatefulWidget {
+class RegisterScreen extends StatefulWidget {
   @override
-  _AddNewCampaignState createState() => _AddNewCampaignState();
+  _RegisterScreenState createState() => _RegisterScreenState();
 }
 
-class _AddNewCampaignState extends State<AddNewCampaign> {
-  TextEditingController _judulCampaignController = TextEditingController();
-  TextEditingController _imageUrlController = TextEditingController();
-  TextEditingController _deskripsiCampaignController = TextEditingController();
-  TextEditingController _alamatController = TextEditingController();
+class _RegisterScreenState extends State<RegisterScreen> {
+  TextEditingController _usernameController = TextEditingController();
+  TextEditingController _emailController = TextEditingController();
+  TextEditingController _nomerHPController = TextEditingController();
+  TextEditingController _passwordController = TextEditingController();
   final _scaffoldKey = GlobalKey<ScaffoldState>();
-  final campaignServices = CampaignServices();
+  final _userServices = UserServices();
   final alamatServices = AlamatServices();
   var selectedProvinsi;
   var selectedKota;
@@ -87,30 +90,28 @@ class _AddNewCampaignState extends State<AddNewCampaign> {
     }
   }
 
-  void saveNewCampaignPressed(ctx) async {
-    final String userId = await LocalService.shared.getUserId();
+  void registerUser(ctx) async {
     final data = {
-      "foto": _imageUrlController.text,
-      "nama_campaign": _judulCampaignController.text,
-      "latar_cerita": _deskripsiCampaignController.text,
+      "username": _usernameController.text,
+      "email": _emailController.text,
+      "password": _passwordController.text,
       "provinsi": selectedProvinsi["id"],
       "kecamatan": selectedKecamatan["id"],
       "kota": selectedKota["id"],
       "kelurahan": selectedKelurahan["id"],
-      "nama_jalan": _alamatController.text,
-      "id_user": userId,
-      "date_expired": "2020-07-30"
+      "nohp": _nomerHPController.text,
     };
-    final res = await campaignServices.postNewCampaign(data);
+    final res = await _userServices.registerUser(data);
     if (res["code"] == 200) {
+      print(res["data"]);
       _scaffoldKey.currentState.showSnackBar(SnackBar(
-        content: Text("Sukses menambah campaign baru"),
+        content: Text("Registrasi Sukses"),
       ));
       setState(() {
-        _imageUrlController.text = "";
-        _judulCampaignController.text = "";
-        _deskripsiCampaignController.text = "";
-        _alamatController.text = "";
+        _usernameController.text = "";
+        _emailController.text = "";
+        _passwordController.text = "";
+        _nomerHPController.text = "";
         selectedKota = null;
         selectedKecamatan = null;
         selectedKelurahan = null;
@@ -120,9 +121,17 @@ class _AddNewCampaignState extends State<AddNewCampaign> {
         selectedProvinsi = null;
         listProvinsi = [];
       });
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) {
+            return HomeScreen();
+          },
+        ),
+      );
     } else {
       _scaffoldKey.currentState.showSnackBar(SnackBar(
-        content: Text("Gagal menambah campaign"),
+        content: Text("Registrasi gagal"),
       ));
     }
   }
@@ -132,33 +141,33 @@ class _AddNewCampaignState extends State<AddNewCampaign> {
     return Scaffold(
         key: _scaffoldKey,
         appBar: AppBar(
-          title: Text("Tambahkan Campaign Baru"),
+          centerTitle: true,
+          title: Text("Register"),
           backgroundColor: Colors.orangeAccent,
         ),
-        bottomNavigationBar: BottomNavigationBarTravel(2),
         body: ListView(
           children: <Widget>[
             Container(
               padding: EdgeInsets.only(top: 5, right: 10, left: 10, bottom: 10),
               child: TextFormField(
-                controller: _imageUrlController,
-                decoration: InputDecoration(labelText: 'Path Picture'),
+                controller: _usernameController,
+                decoration: InputDecoration(labelText: 'Username'),
               ),
             ),
             Container(
               padding: EdgeInsets.only(top: 5, right: 10, left: 10, bottom: 10),
               child: TextFormField(
-                controller: _judulCampaignController,
-                decoration: InputDecoration(labelText: 'Judul Campaign'),
-                maxLength: 30,
+                controller: _emailController,
+                decoration: InputDecoration(labelText: 'Email'),
               ),
             ),
             Container(
               padding: EdgeInsets.only(top: 5, right: 10, left: 10, bottom: 10),
               child: TextFormField(
-                controller: _deskripsiCampaignController,
+                controller: _passwordController,
+                obscureText: true,
                 decoration: InputDecoration(
-                  labelText: 'Deskripsi Campaign',
+                  labelText: 'Password',
                 ),
               ),
             ),
@@ -244,18 +253,43 @@ class _AddNewCampaignState extends State<AddNewCampaign> {
             Container(
               padding: EdgeInsets.only(top: 5, right: 10, left: 10, bottom: 10),
               child: TextFormField(
-                controller: _alamatController,
-                decoration: InputDecoration(labelText: 'Alamat'),
+                keyboardType: TextInputType.phone,
+                controller: _nomerHPController,
+                decoration: InputDecoration(labelText: 'No Hp'),
+              ),
+            ),
+            Container(
+              width: double.infinity,
+              padding: EdgeInsets.all(10),
+              child: Center(
+                child: InkWell(
+                  onTap: () {
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) {
+                          return LoginScreen();
+                        },
+                      ),
+                    );
+                  },
+                  child: Text(
+                    "Sudah punya akun? Login",
+                    style: TextStyle(
+                      color: Colors.blue,
+                    ),
+                  ),
+                ),
               ),
             ),
             Builder(
               builder: (context) => RaisedButton(
                 onPressed: () {
-                  this.saveNewCampaignPressed(context);
+                  this.registerUser(context);
                 },
                 color: Colors.orangeAccent,
                 child: Text(
-                  "Tambah campaign",
+                  "Register",
                 ),
               ),
             )

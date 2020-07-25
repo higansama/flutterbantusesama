@@ -2,9 +2,7 @@ import 'dart:ui';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_app_travel/models/beach_model.dart';
 import 'package:flutter_app_travel/models/campaign.dart';
-import 'package:flutter_app_travel/models/recommended_model.dart';
 import 'package:flutter_app_travel/screens/detail_campaign_screen.dart';
 import 'package:flutter_app_travel/webservices/campaign_services.dart';
 import 'package:flutter_app_travel/widgets/bottom_nav_bar.dart';
@@ -146,13 +144,17 @@ class _HomeScreenState extends State<HomeScreen> {
                     (int index) => InkWell(
                       onTap: () {
                         setState(() {
-                          Navigator.push(context,
-                              MaterialPageRoute(builder: (context) {
-                            return DetailCampaign(
-                              1,
-                              _listCampaignTerbaru[index],
-                            );
-                          }));
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) {
+                                return DetailCampaign(
+                                  1,
+                                  _listCampaignTerbaru[index],
+                                );
+                              },
+                            ),
+                          );
                         });
                       },
                       child: Container(
