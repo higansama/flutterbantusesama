@@ -143,19 +143,17 @@ class _HomeScreenState extends State<HomeScreen> {
                     _listCampaignTerbaru.length,
                     (int index) => InkWell(
                       onTap: () {
-                        setState(() {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) {
-                                return DetailCampaign(
-                                  1,
-                                  _listCampaignTerbaru[index],
-                                );
-                              },
-                            ),
-                          );
-                        });
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) {
+                              return DetailCampaign(
+                                1,
+                                _listCampaignTerbaru[index],
+                              );
+                            },
+                          ),
+                        );
                       },
                       child: Container(
                         margin: EdgeInsets.only(right: 28.8),

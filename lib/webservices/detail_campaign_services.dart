@@ -41,8 +41,9 @@ class CampaignDetailService {
       "id_user": userId,
       "id_campaign": campaignId,
     };
+    FormData formData = new FormData.fromMap(data);
     try {
-      final response = await _dio.post(url, data: data);
+      final response = await _dio.post(url, data: formData);
       print(response.data);
       return response.data;
     } on DioError catch (e) {
@@ -58,8 +59,9 @@ class CampaignDetailService {
       "id_user": userId,
       "id_campaign": campaignId,
     };
+    FormData formData = new FormData.fromMap(data);
     try {
-      final response = await _dio.post(url, data: data);
+      final response = await _dio.post(url, data: formData);
       print(response.data);
       return response.data;
     } on DioError catch (e) {

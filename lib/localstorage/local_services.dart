@@ -16,4 +16,9 @@ class LocalService {
     final SharedPreferences prefs = await _prefs;
     prefs.setString(_userId, userId);
   }
+
+  void removeUserId() async {
+    final SharedPreferences prefs = await _prefs;
+    prefs.remove(_userId);
+  }
 }

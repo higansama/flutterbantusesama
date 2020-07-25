@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_app_travel/localstorage/local_services.dart';
 import 'package:flutter_app_travel/models/campaign.dart';
+import 'package:flutter_app_travel/screens/detail_campaign_screen.dart';
+import 'package:flutter_app_travel/screens/login_screen.dart';
+import 'package:flutter_app_travel/webservices/user_services.dart';
 import 'package:flutter_app_travel/widgets/bottom_nav_bar.dart';
-import 'package:http/http.dart' as http;
 
 class ProfileScreen extends StatefulWidget {
   @override
@@ -9,27 +12,152 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
+  final _userServices = UserServices();
+  var _userData;
+  List<Campaign> _likedData = [];
+  List<Campaign> _rememberedData = [];
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    _getUserProfileData();
+  }
+
+  void _getUserProfileData() async {
+    final res = await _userServices.getUserData();
+    final refactoredLikedData = this._refactorLikedData(res["data"]["likes"]);
+    final refactoredRememberData =
+        this._refactorLikedData(res["data"]["remember"]);
+    setState(() {
+      _likedData = refactoredLikedData;
+      _rememberedData = refactoredRememberData;
+      _userData = res["data"]["profile"];
+    });
+  }
+
+  List<Campaign> _refactorLikedData(data) {
+    List<Campaign> refactoredData = [];
+    for (var campaign in data) {
+      refactoredData.add(Campaign.fromJSON(campaign));
+    }
+    return refactoredData;
+  }
+
+  List<Campaign> _refactorRememberedData(data) {
+    List<Campaign> refactoredData = [];
+    for (var campaign in data) {
+      refactoredData.add(Campaign.fromJSON(campaign));
+    }
+    return refactoredData;
+  }
+
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      home: Scaffold(
+    return DefaultTabController(
+      length: 2,
+      child: Scaffold(
           appBar: AppBar(
             backgroundColor: Colors.orangeAccent,
-            title: Text("John Doe"),
+            title: Text(
+              _userData != null ? _userData["email"] : "Loading...",
+            ),
+            bottom: TabBar(
+              indicatorColor: Colors.deepOrange,
+              tabs: <Widget>[
+                Tab(text: "Disukai"),
+                Tab(
+                  text: "Diingat",
+                )
+              ],
+            ),
           ),
           bottomNavigationBar: BottomNavigationBarTravel(3),
           body: Container(
-            child: ListView(
+            child: Column(
               children: <Widget>[
-                Center(
-                    child: Image.network(
-                        "https://images.unsplash.com/photo-1553798194-cc0213ae7f99?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1951&q=80")),
-                FlatButton(
-                  child: Icon(
-                    Icons.refresh,
-                    color: Colors.blueAccent,
+                Expanded(
+                  child: TabBarView(
+                    children: <Widget>[
+                      ListView.builder(
+                        itemCount: _likedData.length,
+                        itemBuilder: (context, index) {
+                          final campaign = _likedData[index];
+                          return ListTile(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) {
+                                    return DetailCampaign(
+                                      1,
+                                      campaign,
+                                    );
+                                  },
+                                ),
+                              );
+                            },
+                            title: Text(
+                              campaign.namaCampaign,
+                            ),
+                            trailing: Icon(
+                              Icons.arrow_forward_ios,
+                            ),
+                          );
+                        },
+                      ),
+                      ListView.builder(
+                        itemCount: _rememberedData.length,
+                        itemBuilder: (context, index) {
+                          final campaign = _rememberedData[index];
+                          return ListTile(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) {
+                                    return DetailCampaign(
+                                      1,
+                                      campaign,
+                                    );
+                                  },
+                                ),
+                              );
+                            },
+                            title: Text(
+                              campaign.namaCampaign,
+                            ),
+                            trailing: Icon(
+                              Icons.arrow_forward_ios,
+                            ),
+                          );
+                        },
+                      ),
+                    ],
                   ),
-                  onPressed: () {},
+                ),
+                SizedBox(
+                  width: double.infinity,
+                  child: RaisedButton(
+                    onPressed: () {
+                      LocalService.shared.removeUserId();
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) {
+                            return LoginScreen();
+                          },
+                        ),
+                      );
+                    },
+                    color: Colors.white,
+                    child: Text(
+                      "Logout",
+                      style: TextStyle(
+                        color: Colors.red,
+                      ),
+                    ),
+                  ),
                 ),
               ],
             ),
