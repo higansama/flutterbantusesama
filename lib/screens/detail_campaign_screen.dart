@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
 import 'package:flutter_app_travel/models/campaign.dart';
 import 'package:flutter_app_travel/models/campaign_model.dart';
+import 'package:flutter_app_travel/models/tanggapan.dart';
 import 'package:flutter_app_travel/webservices/detail_campaign_services.dart';
 import 'package:flutter_app_travel/widgets/bottom_nav_bar.dart';
 import 'package:flutter_app_travel/widgets/form_tanggapan.dart';
@@ -25,6 +26,7 @@ class _DetailCampaignState extends State<DetailCampaign> {
   final detailCampService = CampaignDetailService();
   int buttonNavBar;
   Campaign campaignData;
+  List<Tanggapan> _tanggapanData = [];
   _DetailCampaignState(int bnb, Campaign data) {
     buttonNavBar = bnb;
     campaignData = data;
@@ -35,13 +37,30 @@ class _DetailCampaignState extends State<DetailCampaign> {
     // TODO: implement initState
     super.initState();
     this._getCampaignDetail(campaignData.id);
+    this._getCampaignTanggapan(campaignData.id);
   }
 
   void _getCampaignDetail(campaignId) async {
     final response = await detailCampService.getDetailCampaign(campaignId);
+    // final tanggapanResponse = await detailCampService.getCampaignTanggapan(campaignId);
     setState(() {
       campaignData = response;
     });
+  }
+
+  void _getCampaignTanggapan(campaignId) async {
+    final tanggapanResponse =
+        await detailCampService.getCampaignTanggapan(campaignId);
+    setState(() {
+      _tanggapanData = tanggapanResponse;
+    });
+  }
+
+  void _addNewTanggapan(String msg, BuildContext context) async {
+    final res = await detailCampService.actionCommentCampaign(
+        this.campaignData.id, msg);
+    Navigator.of(context).pop();
+    this._getCampaignTanggapan(this.campaignData.id);
   }
 
   @override
@@ -166,7 +185,7 @@ class _DetailCampaignState extends State<DetailCampaign> {
                 ],
               ),
 //               Tanggapan
-              ListView(
+              Column(
                 children: <Widget>[
 //                Tambah tanggapan
                   Padding(
@@ -184,7 +203,10 @@ class _DetailCampaignState extends State<DetailCampaign> {
                                   return AlertDialog(
                                     title: Text("Tanggapi Campaign Ini"),
                                     content: new FormTanggapan(
-                                        int.parse(this.campaignData.id)),
+                                        int.parse(this.campaignData.id),
+                                        (text) {
+                                      _addNewTanggapan(text, context);
+                                    }),
                                     actions: <Widget>[],
                                   );
                                 },
@@ -201,60 +223,63 @@ class _DetailCampaignState extends State<DetailCampaign> {
                     ),
                   ),
 //                Kartu Tanggapan
-                  Card(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: <Widget>[
-//                        profile foto komentar
-                        Container(
-                          margin: EdgeInsets.all(10),
-                          height: 80,
-                          width: 80,
-                          decoration: BoxDecoration(
-                              color: Colors.lightBlue,
-                              shape: BoxShape.circle,
-                              image: DecorationImage(
-                                fit: BoxFit.fill,
-                                image: NetworkImage(
-                                    "https://images.unsplash.com/photo-1553798194-cc0213ae7f99?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1951&q=80"),
-                              )),
-                        ),
+                  Expanded(
+                    child: ListView.builder(
+                      itemCount: _tanggapanData.length,
+                      // primary: false,
+                      // physics: NeverScrollableScrollPhysics(),
+                      itemBuilder: (context, index) {
+                        final tanggapan = _tanggapanData[index];
+                        return Container(
+                          margin: EdgeInsets.all(5),
+                          child: Card(
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: <Widget>[
 //                        tanggal komentar
-                        Container(
-                          margin: EdgeInsets.only(top: 9.8),
-                          width: 300,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: <Widget>[
+                                  Container(
+                                    margin: EdgeInsets.only(top: 9.8),
+                                    width: 300,
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: <Widget>[
 //                              Nama
-                              Text(
-                                "John Doe",
-                                style: TextStyle(
-                                    fontSize: 18.5,
-                                    color: Colors.black.withAlpha(100),
-                                    fontWeight: FontWeight.w500),
-                              ),
+                                        Text(
+                                          tanggapan.username,
+                                          style: TextStyle(
+                                              fontSize: 18.5,
+                                              color: Colors.black.withAlpha(100),
+                                              fontWeight: FontWeight.w500),
+                                        ),
 //                              Tanggal
-                              Text(
-                                "22 Juli 2020",
-                                style: TextStyle(
-                                    fontWeight: FontWeight.w200,
-                                    fontSize: 12,
-                                    color: Colors.black),
-                              ),
+                                        Text(
+                                          tanggapan.dateCreated,
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.w200,
+                                              fontSize: 12,
+                                              color: Colors.black),
+                                        ),
 //                              Isi Komentar
-                              Padding(
-                                padding: const EdgeInsets.all(6.0),
-                                child: Text(
-                                  "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. ",
-                                  style: TextStyle(),
-                                ),
-                              )
-                            ],
+                                        Padding(
+                                          padding: const EdgeInsets.all(6.0),
+                                          child: Text(
+                                            tanggapan.komentar,
+                                            style: TextStyle(),
+                                          ),
+                                        )
+                                      ],
+                                    ),
+                                  )
+                                ],
+                              ),
+                            ),
                           ),
-                        )
-                      ],
+                        );
+                      },
                     ),
                   )
                 ],

@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_app_travel/models/campaign.dart';
+import 'package:flutter_app_travel/models/tanggapan.dart';
 import 'package:flutter_app_travel/webservices/config.dart';
 
 class CampaignDetailService {
@@ -11,6 +12,22 @@ class CampaignDetailService {
       var response = await _dio.get(url);
       var data = Campaign.fromJSON(response.data["data"]["campaign"][0]);
       return data;
+    } on DioError catch (e) {
+      print(e);
+    }
+  }
+
+  Future getCampaignTanggapan(campaignId) async {
+    final url = "$base_url/all/comments/campaign?idcampaign=$campaignId";
+    List<Tanggapan> _tanggapans = [];
+    try {
+      var response = await _dio.get(url);
+      for (var tanggapan in response.data["data"]) {
+        _tanggapans.add(
+          Tanggapan.fromJSON(tanggapan),
+        );
+      }
+      return _tanggapans;
     } on DioError catch (e) {
       print(e);
     }
@@ -49,14 +66,15 @@ class CampaignDetailService {
   }
 
   Future actionCommentCampaign(String campaignId, String message) async {
-    final url = "$base_url/remember/campaign";
+    final url = "$base_url/tanggapi/campaign";
     final data = {
       "id_user": 31,
       "id_campaign": campaignId,
       "isi_komentar": message
     };
+    FormData formData = new FormData.fromMap(data);
     try {
-      final response = await _dio.post(url, data: data);
+      final response = await _dio.post(url, data: formData);
       return response;
     } on DioError catch (e) {
       print(e);
